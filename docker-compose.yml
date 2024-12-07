@@ -1,0 +1,41 @@
+version: "3"
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+        command: gunicorn aifund_backend.wsgi:application --bind 0.0.0.0:8000
+        ports:
+            - "8000:8000"
+        depends_on:
+            - redis
+        environment:
+            - CELERY_BROKER_URL=redis://redis:6379/0
+            - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+    celery_worker:
+        build:
+            context: .
+            dockerfile: docker/celery.Dockerfile
+        command: celery -A aifund_backend worker -l info
+        depends_on:
+            - redis
+        environment:
+            - CELERY_BROKER_URL=redis://redis:6379/0
+            - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+    celery_beat:
+        build:
+            context: .
+            dockerfile: docker/celery.Dockerfile
+        command: celery -A aifund_backend beat -l info
+        depends_on:
+            - redis
+        environment:
+            - CELERY_BROKER_URL=redis://redis:6379/0
+            - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+    redis:
+        image: redis:6.2-alpine
+        ports:
+            - "6379:6379"
