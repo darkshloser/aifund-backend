@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # Sub-repositories
-stock_scraper/*
+stock_scraper/
 
 # C extensions
 *.so
